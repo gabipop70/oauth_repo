@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Demo App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f6f8;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        .btn-login {
+            display: inline-block;
+            background-color: #24292e;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .btn-login:hover {
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>OAuth Demo</h1>
+        <p>Aplicație demonstrativă pentru autentificare OAuth.</p>
+        
+        <!-- Butonul care va redirecționa utilizatorul către furnizorul OAuth -->
+        <a id="login-btn" class="btn-login" href="#">Autentificare cu GitHub</a>
+
+        <div id="user-info" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        // Script pentru procesarea codului primitor prin callback (după redirect-ul OAuth)
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+
+            if (code) {
+                // Aici se procesează codul de autorizare returnat de furnizor
+                document.getElementById('user-info').innerHTML = `
+                    <p style="color: green;"><strong>Cod OAuth primit:</strong> <code>${code}</code></p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
