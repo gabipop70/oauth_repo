@@ -1,68 +1,35 @@
-<!DOCTYPE html>
-<html lang="ro">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OAuth Demo App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f4f6f8;
-        }
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-        }
-        .btn-login {
-            display: inline-block;
-            background-color: #24292e;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-        .btn-login:hover {
-            background-color: #000000;
-        }
-    </style>
-</head>
-<body>
+<script>
+    window.addEventListener('DOMContentLoaded', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
 
-    <div class="card">
-        <h1>OAuth Demo</h1>
-        <p>Aplicație demonstrativă pentru autentificare OAuth.</p>
-        
-        <!-- Butonul care va redirecționa utilizatorul către furnizorul OAuth -->
-        <a id="login-btn" class="btn-login" href="#">Autentificare cu GitHub</a>
+        if (code) {
+            const userInfoDiv = document.getElementById('user-info');
+            userInfoDiv.innerHTML = `<p style="color: blue;">Se procesează codul: <code>${code}</code>...</p>`;
 
-        <div id="user-info" style="margin-top: 20px;"></div>
-    </div>
+            try {
+                // Înlocuiește URL-ul de mai jos cu adresa backend-ului / worker-ului tău OAuth
+                const response = await fetch('https://SDR-SAU-BACKEND-URL.com/oauth/token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code })
+                });
 
-    <script>
-        // Script pentru procesarea codului primitor prin callback (după redirect-ul OAuth)
-        window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
+                const data = await response.json();
 
-            if (code) {
-                // Aici se procesează codul de autorizare returnat de furnizor
-                document.getElementById('user-info').innerHTML = `
-                    <p style="color: green;"><strong>Cod OAuth primit:</strong> <code>${code}</code></p>
-                `;
+                if (data.access_token) {
+                    userInfoDiv.innerHTML = `<p style="color: green;"><strong>Autentificare reușită!</strong> Token acces salvat.</p>`;
+                    // Salvează tokenul pentru sesiunea curentă
+                    localStorage.setItem('access_token', data.access_token);
+                    
+                    // Curăță codul din URL pentru a preveni reutilizarea lui la refresh
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } else {
+                    userInfoDiv.innerHTML = `<p style="color: red;">Eroare la obținerea token-ului: ${data.error || 'Cod invalid/expirat'}</p>`;
+                }
+            } catch (err) {
+                userInfoDiv.innerHTML = `<p style="color: red;">Eroare de rețea sau CORS la procesarea codului.</p>`;
             }
-        });
-    </script>
-</body>
-</html>
+        }
+    });
+</script>
