@@ -1,35 +1,24 @@
-<script>
-    window.addEventListener('DOMContentLoaded', async () => {
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>ANAF OAuth Callback</title>
+</head>
+<body style="font-family: Arial, sans-serif; text-align: center; padding-top: 50px;">
+    <h2 style="color: #2e7d32;">Se finalizează autentificarea ANAF...</h2>
+    <p id="status">Vă rugăm așteptați, sunteți redirecționat către aplicație.</p>
+
+    <script>
+        // Extract parametrul "code" din URL-ul trimis de ANAF
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
 
         if (code) {
-            const userInfoDiv = document.getElementById('user-info');
-            userInfoDiv.innerHTML = `<p style="color: blue;">Se procesează codul: <code>${code}</code>...</p>`;
-
-            try {
-                // Înlocuiește URL-ul de mai jos cu adresa backend-ului / worker-ului tău OAuth
-                const response = await fetch('https://SDR-SAU-BACKEND-URL.com/oauth/token', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: code })
-                });
-
-                const data = await response.json();
-
-                if (data.access_token) {
-                    userInfoDiv.innerHTML = `<p style="color: green;"><strong>Autentificare reușită!</strong> Token acces salvat.</p>`;
-                    // Salvează tokenul pentru sesiunea curentă
-                    localStorage.setItem('access_token', data.access_token);
-                    
-                    // Curăță codul din URL pentru a preveni reutilizarea lui la refresh
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                } else {
-                    userInfoDiv.innerHTML = `<p style="color: red;">Eroare la obținerea token-ului: ${data.error || 'Cod invalid/expirat'}</p>`;
-                }
-            } catch (err) {
-                userInfoDiv.innerHTML = `<p style="color: red;">Eroare de rețea sau CORS la procesarea codului.</p>`;
-            }
+            // Trimite AUTOMAT codul către serverul local Python care ascultă pe portul 8080
+            window.location.href = `http://localhost:8080/?code=${code}`;
+        } else {
+            document.getElementById('status').innerText = 'Eroare: Nu s-a detectat niciun cod de la ANAF.';
         }
-    });
-</script>
+    </script>
+</body>
+</html>
